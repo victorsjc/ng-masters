@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1</title>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="lib/jquery-1.10.2.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script language="javascript">
+		
+		function GithubRepo1(username, reponame){
+			this.issues = [];
+			this.username = username;
+			this.reponame = reponame;	    	
+		}
+
+		GithubRepo1.prototype.popula_issues = function(id, issues){
+	    			console.log('popula_issues');
+	    			this.issues = issues;
+	    			for(var i=0;i<this.issues.length;i++){
+	    				var issue = this.issues[i];
+		    			var html = '<tr>';
+		    			html+= '<td>' + issue.number + '</td>';
+		    			html+= '<td>' + issue.title + '</td>';
+		    			html+= '</tr>';
+		    			var $html = $(html);
+		    			$("#"+id).append($html);
+	    			}
+	    };
+
+		GithubRepo1.prototype.busca_issues = function(){
+		    	console.log('busca_issues');
+				var uri = 'https://api.github.com/repos/' + this.username + '/' + this.reponame + '/issues';
+
+					$.get(uri).success(function(response){
+						if (typeof response == 'string'){
+								response = JSON.parse(response);
+						}
+
+						GithubRepo1.prototype.popula_issues("issuestable", response);
+					});
+					
+		};		
+
+	    function GithubRepo(username, reponame){
+	    	var issues = [];	
+	    	var username = username;
+	    	var reponame = reponame;
+	    	
+	    	var popula_issues = function(id){
+	    			console.log('popula_issues');
+	    			for(var i=0;i<issues.length;i++){
+	    				var issue = issues[i];
+		    			var html = '<tr>';
+		    			html+= '<td>' + issue.number + '</td>';
+		    			html+= '<td>' + issue.title + '</td>';
+		    			html+= '</tr>';
+		    			var $html = $(html);
+		    			$("#"+id).append($html);
+	    			}
+	    	}
+
+	    	var obj = {
+	    		'busca_issues' : function(){
+	    			console.log('busca_issues');
+						    	var uri = 'https://api.github.com/repos/' + username + '/' + reponame + '/issues';
+
+						    	$.get(uri).success(function(response){
+									if (typeof response == 'string'){
+										response = JSON.parse(response);
+									}
+
+									issues = response;
+									popula_issues("issuestable");
+						    	});
+			    }			    
+	    	}
+	    	return obj;
+	    };
+
+$(document).ready(function(){
+
+	    $( "#submit" ).click(function( event ) {
+	    	var username = $("#username").val();
+	    	var reponame = $("#repositoryName").val();
+
+			var le_repo = new GithubRepo1(username, reponame);
+		    le_repo.busca_issues();
+	    });
+
+});
+</script>
+
+</head>
+<body>
+<h3>Getting issues from Github</h3>
+<form class="form-horizontal" role="form" id="form">
+	<div class="form-group">
+		<label class="control-label col-sm-2" for="username">Username:</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" id="username">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label col-sm-2" for="repositoryName">Repository Name:</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" id="repositoryName">
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-sm-offset-2 col-sm-10">
+			<button type="button" class="btn btn-default" id="submit">Submit</button>
+		</div>
+	</div>
+</form>
+<div class="container">
+	<table class="table table-bordered table-striped responsive-utilities" id="issuestable">
+		<thead>
+			<tr>
+				<th>Issue #</th>
+				<th>Title</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+</body>
