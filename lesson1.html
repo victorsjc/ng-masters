@@ -36,7 +36,9 @@
 					response = JSON.parse(response);
 				}
 
-				promessa.callback(response);
+				setTimeout(function(){ 
+					promessa.callback(response);
+				},1000);
 			});				
 				
 			return promessa;			
