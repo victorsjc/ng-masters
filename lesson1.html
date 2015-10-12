@@ -21,6 +21,26 @@
 			this.username = username;
 			this.reponame = reponame;	    	
 		}
+		
+		GithubRepo1.prototype.busca_issues_promessa = function(){
+			var promessa = {
+					then: function(callback){
+						promessa.callback = callback;
+					}
+				};
+			
+			var uri = 'https://api.github.com/repos/' + this.username + '/' + this.reponame + '/issues';
+				
+			$.get(uri).success(function(response){
+				if (typeof response == 'string'){
+					response = JSON.parse(response);
+				}
+
+				promessa.callback(response);
+			});				
+				
+			return promessa;			
+		}
 
 		GithubRepo1.prototype.popula_issues = function(id, issues){
 	    			console.log('popula_issues');
@@ -92,8 +112,10 @@ $(document).ready(function(){
 	    	var username = $("#username").val();
 	    	var reponame = $("#repositoryName").val();
 
-			var le_repo = new GithubRepo1(username, reponame);
-		    le_repo.busca_issues();
+		var le_repo = new GithubRepo1(username, reponame);
+		le_repo.busca_issues_promessa().then(function(response){ 
+			GithubRepo1.prototype.popula_issues("issuestable", response);
+		});
 	    });
 
 });
